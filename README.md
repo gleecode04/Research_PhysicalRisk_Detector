@@ -71,8 +71,3 @@ pip install kafka-python xgboost lightgbm
 
 Example C# client: `examples/empatica_minute/EmpaticaLatestClient.cs` (calls HTTP prediction server; adjust host/ports for your deployment).
 
-## License / attribution
-
-Add your team’s license and citation requirements before publishing. Do **not** commit secrets (AWS keys, Kafka SASL passwords); use environment variables only.
-
-**Public git workflow:** run `bash scripts/git-add-code.sh` before committing so only code + docs are staged (no `Data/`, CSV, or PDF).
