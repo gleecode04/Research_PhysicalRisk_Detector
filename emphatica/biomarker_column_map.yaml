@@ -1,0 +1,21 @@
+# Empatica aggregated_per_minute CSVs: numeric columns for 5-minute window aggregates.
+# After merge, columns are "{csv_stem}__{original_column}" (see ingest_minute_biomarkers.py).
+
+window_minutes: 5
+
+value_column_suffixes:
+  - eda_scl_usiemens
+  - temperature_celsius
+  - pulse_rate_bpm
+  - prv_rmssd_ms
+  - respiratory_rate_brpm
+  - spo2_percentage
+  - met
+  - accelerometers_std_g
+  - vector_magnitude
+
+# Documentation only — retrain on biomarkers; old 3-feature weights do not transfer.
+lab_feature_proxies:
+  eda_eda: eda_scl_usiemens
+  temperature_temp: temperature_celsius
+  bvp_bvp: pulse_rate_bpm

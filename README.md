@@ -15,12 +15,12 @@ Research codebase for **3-class frustration** models from wrist biosignals, **Em
 | **`prediction_server.py`**, **`poll_wrist_frustration.py`** | HTTP buffer inference; periodic folder poll. |
 | **`emphatica/`** | S3 / biomarker ingest helpers (YAML-driven minute sessions). |
 | **`streaming/kafka/`** | Example **Kafka** producer + windowed consumer calling the same predictor as batch CSV. |
-| **`examples/empatica_minute/`** | Sample minute CSVs + Unity client + TA poller (for demos). |
+| **`examples/empatica_minute/`** | Unity client + TA poller (**no CSVs**; sample CSVs live under `Data/examples/empatica_minute/`). |
 | **`tools/`** | Legacy **Avro → spreadsheet** and **normalize/merge** research scripts (paths fixed to repo `Data/`). |
-| **`docs/`** | `ML_GUIDE.md` (deep dive), `DATAFLOW.md` (architecture), `how_to_run.txt` (commands). |
-| **`final_files_ML/`** | Training labels + `Frustration/` CSVs for `final_ml`. |
-| **`ml_results_final_ml/`** | Default output for trained `final_ml` checkpoints (`versions/` for versioned runs). |
-| **`legacy/`** | Duplicate / scratch files kept for reference only. |
+| **`docs/`** | `ML_GUIDE.md`, `DATAFLOW.md`, `DATA_REPOSITORY_LAYOUT.md`, `how_to_run.txt`. |
+| **`scripts/`** | `git-add-code.sh` — stage only code folders (excludes `Data/`, `legacy/`). |
+| **`Data/`** | **All local data** (CSV, PDF, Avro exports, `final_files_ML/`, `outputs/` joblibs). **Gitignored** — see `docs/DATA_REPOSITORY_LAYOUT.md`. |
+| **`legacy/`** | Scratch copies (gitignored). |
 
 ## Quick start
 
@@ -29,11 +29,11 @@ cd /path/to/VIP
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Train frustration model (needs final_files_ML/)
+# Train frustration model (needs Data/final_files_ML/ on disk — not in git)
 python train_final_ml_model.py --final-ml-version auto
 
-# Predict from example minute CSVs
-python empatica_minute_filter_predict.py --dir examples/empatica_minute --json-out
+# Predict from bundled sample minute CSVs (under Data/)
+python empatica_minute_filter_predict.py --dir Data/examples/empatica_minute --json-out
 ```
 
 Optional extras (not required for core flows):
@@ -45,7 +45,7 @@ pip install kafka-python xgboost lightgbm
 ## ML practices in this repo
 
 - **Stratified splits** for row-level `final_ml` evaluation; participant hold-out supported via `--split participant`.
-- **Artifact versioning**: `--final-ml-version auto|name` writes under `ml_results_final_ml/versions/`.
+- **Artifact versioning**: `--final-ml-version auto|name` writes under `Data/outputs/ml_results_final_ml/versions/`.
 - **Wide model search** (`--final-ml-wide-model-search`): benchmarks ExtraTrees, RF, calibrated LinearSVC, small MLP, and optional **XGBoost / LightGBM** (if installed); selects the best on the **validation** split before the usual voting / HGB-grid fallbacks.
 - **Traceability**: `--experiment-id` is copied into `model_meta_finalml.json`.
 - **Reproducibility helpers**: `ml/training_utils.py` (`set_global_seed`, stratified K-fold index builder).
@@ -64,6 +64,7 @@ pip install kafka-python xgboost lightgbm
 
 - **`docs/ML_GUIDE.md`** — CLI reference, split behavior, inference window semantics.
 - **`docs/DATAFLOW.md`** — diagrams and stage-by-stage flow.
+- **`docs/DATA_REPOSITORY_LAYOUT.md`** — what belongs under `Data/` locally.
 - **`docs/how_to_run.txt`** — copy-paste command cheatsheet.
 
 ## Unity / TA client
@@ -73,4 +74,5 @@ Example C# client: `examples/empatica_minute/EmpaticaLatestClient.cs` (calls HTT
 ## License / attribution
 
 Add your team’s license and citation requirements before publishing. Do **not** commit secrets (AWS keys, Kafka SASL passwords); use environment variables only.
-# Research_PhysicalRisk_Detector
+
+**Public git workflow:** run `bash scripts/git-add-code.sh` before committing so only code + docs are staged (no `Data/`, CSV, or PDF).

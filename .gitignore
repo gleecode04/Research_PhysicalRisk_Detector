@@ -10,6 +10,29 @@ __pycache__/
 .env
 .env.*
 
-# Large / regenerable artifacts (uncomment for a lean public repo)
-# ml_results/
-# ml_results_final_ml/
+# --- Local data & heavy artifacts (not tracked; keep on disk for training / demos) ---
+# Entire data tree (CSVs, PDFs, models, plots, etc.)
+/Data/
+
+# Tabular exports anywhere in the repo — `git add .` will not pick these up
+*.csv
+*.CSV
+
+# Duplicate / scratch copies
+/legacy/
+
+# Old root artifact dirs (if recreated by mistake)
+/ml_results/
+/ml_results_final_ml/
+/results/
+/t_outputs/
+/images/
+/ml_server/
+
+# Root-level binaries / hand-ins (should live under Data/documents/ if needed locally)
+*.pdf
+*.docx
+
+# ML binaries if ever written outside Data/ (default artifacts live under Data/outputs/)
+*.joblib
+*.pkl

@@ -1,0 +1,16 @@
+avro
+pandas
+openpyxl
+scikit-learn
+matplotlib
+seaborn
+numpy
+joblib
+boto3
+pyyaml
+flask
+
+# Optional (streaming / extra estimators)
+# kafka-python
+# xgboost
+# lightgbm

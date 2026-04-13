@@ -1,0 +1,56 @@
+# VIP / final_ml frustration — command boilerplate
+# Working directory: repo root (folder containing train.py).
+# Local data & CSVs live under Data/ (gitignored). Stage code only: bash scripts/git-add-code.sh
+
+# --- Two-file workflow (submit-friendly) ---
+# 1) Train model (needs train.py + ml/; on-disk labels under Data/final_files_ML/):
+#    python train_final_ml_model.py [--final-ml-root Data/final_files_ML] [--final-ml-version auto]
+# 2) Minute-wide Empatica CSVs → filter/merge → predict:
+#    python empatica_minute_filter_predict.py --dir Data/examples/empatica_minute [--model-version v1] [--json-out]
+#
+# Optional: wider model comparison at train time (val pick; optional xgboost/lightgbm):
+#    python train_final_ml_model.py --final-ml-wide-model-search --experiment-id demo_run
+#
+# Optional: Kafka windowed inference (docs/DATAFLOW.md, streaming/README.md):
+#    python streaming/kafka/consumer_windowed_predict.py
+
+# --- Train (3-class frustration, final_files_ML layout) ---
+#   python train.py --feature-source final_ml [--final-ml-root <DATA>] [--output-dir <DIR>] [--final-ml-version <NAME|auto>]
+#
+# Placeholders:
+#   <DATA>     = folder with labels.txt and Frustration/*.csv  (default: ./Data/final_files_ML)
+#   <DIR>      = where metrics + joblib are written (default for final_ml: ./Data/outputs/ml_results_final_ml)
+#   <VERSION>  = model run id under Data/outputs/ml_results_final_ml/versions/<VERSION>
+#
+# Versioning (recommended for each new training run):
+#   --final-ml-version auto     → creates Data/outputs/ml_results_final_ml/versions/v1, v2, v3, …
+#   --final-ml-version my_exp   → writes to Data/outputs/ml_results_final_ml/versions/my_exp
+# Omit --final-ml-version to train into Data/outputs/ml_results_final_ml/ directly (may overwrite).
+
+python train.py --feature-source final_ml --final-ml-root Data/final_files_ML --final-ml-version auto
+
+# Participant-level split (harder; not the ~92% row-split benchmark):
+# python train.py --feature-source final_ml --split participant --hold-out-n 1
+
+# --- Predict: merged minute CSVs (eda / temperature / pulse-rate) ---
+#   python predict_from_emphatica_minute_csvs.py --dir <FOLDER> [--model-version <VERSION> | --output-dir <ARTIFACT_DIR>]
+#
+# With a versioned train artifact:
+python predict_from_emphatica_minute_csvs.py --dir Data/examples/empatica_minute --model-version v1
+
+# Explicit artifact directory (any path):
+python predict_from_emphatica_minute_csvs.py --dir Data/examples/empatica_minute --output-dir Data/outputs/ml_results_final_ml/versions/v1
+
+# --- Predict: train.py CLI (any wrist-format CSV) ---
+#   python train.py --predict-frustration-final <CSV> [--model-version <VERSION> | --output-dir <ARTIFACT_DIR>] [--assume-one-row-per-minute]
+
+python train.py --predict-frustration-final path/to/wrist.csv --model-version v1 --assume-one-row-per-minute
+
+# --- Poll folder every N seconds ---
+python poll_wrist_frustration.py --dir /path/to/csv_folder --model-version v1 --interval 300
+# export VIP_MODEL_VERSION=v1   # optional default for --model-version
+
+# --- HTTP server (Unity) ---
+# export VIP_MODEL_DIR=/path/to/VIP/Data/outputs/ml_results_final_ml
+# export VIP_MODEL_VERSION=v1    # optional → loads .../versions/v1
+# python prediction_server.py
