@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+*.log
+.env
+.env.*
+
+# Large / regenerable artifacts (uncomment for a lean public repo)
+# ml_results/
+# ml_results_final_ml/
